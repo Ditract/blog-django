@@ -1,0 +1,29 @@
+# Entorno virtual
+venv/
+env/
+.env
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Archivos de Django
+*.sqlite3
+*.log
+migrations/
+
+# Archivos de configuración sensibles
+*.env
+.env.*
+secrets.json
+
+# Archivos estáticos y de medios (si los generas localmente)
+staticfiles/
+media/
+
+# Otros
+.DS_Store  # Para macOS
+*.swp
+*.swo
