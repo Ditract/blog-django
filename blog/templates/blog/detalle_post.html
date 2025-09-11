@@ -1,13 +1,12 @@
 {% extends 'blog/base.html' %}
-{% block title %}Detalles{% endblock %}
-{% block content  %}
-    <h1>{{ post.titulo }}</h1>
+{% block title %}{{ post.titulo }}{% endblock %}
+{% block content %}
+    <h2>{{ post.titulo }}</h2>
     <p>{{ post.contenido }}</p>
-    <p>Fecha: {{ post.fecha }}</p>
-    <a href="{% url 'lista_posts' %}">Volver a la lista</a> |
-    <a href="{% url 'editar_post' post.id %}">Editar</a> |
-    <a href="{% url 'eliminar_post' post.id %}">Eliminar</a>
+    <p>Fecha: {{ post.fecha }} | Autor: {{ post.autor.username }}</p>
+    <a href="{% url 'lista_posts' %}">Volver a la lista</a>
+    {% if user.is_authenticated and user == post.autor %}
+        | <a href="{% url 'editar_post' post.id %}">Editar</a>
+        | <a href="{% url 'eliminar_post' post.id %}">Eliminar</a>
+    {% endif %}
 {% endblock %}
-
-
-
