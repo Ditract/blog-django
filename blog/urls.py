@@ -1,9 +1,9 @@
-from django.shortcuts import redirect
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 urlpatterns = [
     path('', views.lista_posts, name='lista_posts'),
+    path('categoria/<int:categoria_id>/', views.lista_posts, name='posts_por_categoria'),
     path('<int:pk>/', views.detalle_post, name='detalle_post'),
     path('nuevo/', views.crear_post, name='crear_post'),
     path('editar/<int:pk>/', views.editar_post, name='editar_post'),

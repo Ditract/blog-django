@@ -121,9 +121,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Media (si usarás ImageField luego)
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_REDIRECT_URL = '/blog/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'  # O '/blog/' si quieres ir directo a la lista de posts
+LOGOUT_REDIRECT_URL = '/accounts/login/'

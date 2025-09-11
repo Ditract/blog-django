@@ -2,6 +2,13 @@
 {% block title %}{{ post.titulo }}{% endblock %}
 {% block content %}
     <h2>{{ post.titulo }}</h2>
+    <p>Categorías:
+        {% for categoria in post.categorias.all %}
+            <a href="{% url 'posts_por_categoria' categoria.id %}">{{ categoria.nombre }}</a>
+        {% empty %}
+            Sin categorías
+        {% endfor %}
+    </p>
     <p>{{ post.contenido }}</p>
     <p>Fecha: {{ post.fecha }} | Autor: {{ post.autor.username }}</p>
     <a href="{% url 'lista_posts' %}">Volver a la lista</a>

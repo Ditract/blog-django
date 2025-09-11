@@ -1,7 +1,16 @@
 {% extends 'blog/base.html' %}
-{% block title %}Lista de Posts{% endblock %}
+{% block title %}{{ titulo }}{% endblock %}
 {% block content %}
-    <h2>Lista de Posts</h2>
+    <h2>{{ titulo }}</h2>
+
+    <!-- Enlaces a categorías -->
+    <p><strong>Categorías:</strong>
+    {% for categoria in categorias %}
+        <a href="{% url 'posts_por_categoria' categoria.id %}">{{ categoria.nombre }}</a> |
+    {% endfor %}
+    <a href="{% url 'lista_posts' %}">Todas</a>
+    </p>
+
     <ul>
         {% for post in posts %}
             <li>
@@ -16,6 +25,7 @@
             <li>No hay posts disponibles.</li>
         {% endfor %}
     </ul>
+
     {% if user.is_authenticated %}
         <a href="{% url 'crear_post' %}">Crear nuevo post</a> |
         <form method="post" action="{% url 'logout' %}" style="display: inline;">
