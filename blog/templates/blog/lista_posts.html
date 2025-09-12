@@ -1,29 +1,68 @@
 {% extends 'blog/base.html' %}
-{% block title %}Lista de Posts{% endblock %}
+{% block title %}{{ titulo }}{% endblock %}
 {% block content %}
-    <h2>Lista de Posts</h2>
-    <ul>
-        {% for post in posts %}
-            <li>
+    <h2>{{ titulo }}</h2>
+
+    <!-- Formulario de búsqueda -->
+    <form method="get" action="{% url 'lista_posts' %}" class="mb-4">
+        {% if categoria_id %}
+            <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
+        {% endif %}
+        <div class="input-group">
+            {{ search_form.q }} <!-- Cambiado a .q -->
+            <button type="submit" class="btn btn-custom">Buscar</button>
+        </div>
+    </form>
+
+    <!-- Enlaces a categorías -->
+    <div class="mb-4">
+        <strong>Categorías:</strong>
+        {% for categoria in categorias %}
+            <a href="{% url 'posts_por_categoria' categoria.id %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-outline-primary btn-sm">{{ categoria.nombre }}</a>
+        {% endfor %}
+        <a href="{% url 'lista_posts' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-outline-primary btn-sm">Todas</a>
+    </div>
+
+    <!-- Lista de posts -->
+    <div class="list-group">
+        {% for post in page_obj %}
+            <div class="list-group-item post-item">
                 <a href="{% url 'detalle_post' post.id %}">{{ post.titulo }}</a>
                 (por {{ post.autor.username }})
                 {% if user.is_authenticated and user == post.autor %}
-                    | <a href="{% url 'editar_post' post.id %}">Editar</a>
-                    | <a href="{% url 'eliminar_post' post.id %}">Eliminar</a>
+                    | <a href="{% url 'editar_post' post.id %}" class="text-primary">Editar</a>
+                    | <a href="{% url 'eliminar_post' post.id %}" class="text-danger">Eliminar</a>
                 {% endif %}
-            </li>
+            </div>
         {% empty %}
-            <li>No hay posts disponibles.</li>
+            <p>No hay posts disponibles.</p>
         {% endfor %}
-    </ul>
-    {% if user.is_authenticated %}
-        <a href="{% url 'crear_post' %}">Crear nuevo post</a> |
-        <form method="post" action="{% url 'logout' %}" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" style="background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; font-size: inherit;">Cerrar Sesión</button>
-        </form>
-    {% else %}
-        <a href="{% url 'login' %}">Iniciar Sesión</a> |
-        <a href="{% url 'register' %}">Registrarse</a>
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_previous or page_obj.has_next %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Anterior</a>
+                    </li>
+                {% endif %}
+                <li class="page-item disabled">
+                    <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Última</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     {% endif %}
 {% endblock %}
