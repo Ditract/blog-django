@@ -17,6 +17,8 @@ class Post(models.Model):
     autor = models.ForeignKey(User, on_delete=models.CASCADE)
     categorias = models.ManyToManyField(Category, related_name='posts', blank=True)
 
+    class Meta:
+        ordering = ['-fecha']  # 👈 siempre ordena por fecha descendente
 
     def __str__(self):
         return self.titulo

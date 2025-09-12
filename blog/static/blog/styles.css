@@ -1,0 +1,19 @@
+body {
+    padding-top: 70px;
+}
+.navbar-brand {
+    font-weight: bold;
+}
+.post-item {
+    margin-bottom: 20px;
+}
+.post-item a {
+    color: #007bff;
+}
+.btn-custom {
+    background-color: #007bff;
+    color: white;
+}
+.btn-custom:hover {
+    background-color: #0056b3;
+}

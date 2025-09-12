@@ -1,105 +1,109 @@
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.db.models import Q
 from .models import Post, Category
-from .forms import PostForm, SearchForm
+from .forms import PostForm, SearchForm, CustomUserCreationForm
 
 
-def lista_posts(request, categoria_id=None):
-    posts = Post.objects.all()
-    categorias = Category.objects.all()
+class ListaPostsView(ListView):
+    model = Post
+    template_name = 'blog/lista_posts.html'
+    context_object_name = 'page_obj'
+    paginate_by = 5  # Paginación
 
-    if categoria_id:
-        categoria = get_object_or_404(Category, id=categoria_id)
-        posts = posts.filter(categorias=categoria)
-        titulo = f'Posts en {categoria.nombre}'
-    else:
-        titulo = 'Todos los Posts'
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        categoria_id = self.kwargs.get('categoria_id')
 
-    query = request.GET.get('q')
-    print(f"Query recibida: '{query}'")  # Para depurar
-    if query:
-        posts = posts.filter(
-            Q(titulo__icontains=query) | Q(contenido__icontains=query)
-        )
-        print(f"Posts encontrados: {posts.count()}")  # Para depurar
+        if query:
+            queryset = queryset.filter(Q(titulo__icontains=query) | Q(contenido__icontains=query))
+
         if categoria_id:
-            titulo = f'Resultados de "{query}" en {categoria.nombre}'
+            queryset = queryset.filter(categorias__id=categoria_id)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categorias'] = Category.objects.all()
+        context['search_form'] = SearchForm(self.request.GET)
+        context['query'] = self.request.GET.get('q')
+        context['categoria_id'] = self.kwargs.get('categoria_id')
+
+        # Título dinámico
+        if context['query']:
+            if context['categoria_id']:
+                categoria = get_object_or_404(Category, id=context['categoria_id'])
+                context['titulo'] = f'Resultados de "{context["query"]}" en {categoria.nombre}'
+            else:
+                context['titulo'] = f'Resultados de búsqueda para "{context["query"]}"'
+        elif context['categoria_id']:
+            categoria = get_object_or_404(Category, id=context['categoria_id'])
+            context['titulo'] = f'Posts en {categoria.nombre}'
         else:
-            titulo = f'Resultados de búsqueda para "{query}"'
+            context['titulo'] = 'Todos los Posts'
 
-    # Paginación
-    paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    search_form = SearchForm(request.GET)
-
-    return render(request, 'blog/lista_posts.html', {
-        'page_obj': page_obj,
-        'categorias': categorias,
-        'titulo': titulo,
-        'search_form': search_form,
-        'query': query,
-        'categoria_id': categoria_id,
-    })
+        return context
 
 
-def detalle_post(request, pk):
-    post = get_object_or_404(Post, id=pk)
-    return render(request, 'blog/detalle_post.html', {'post': post})
+class DetallePostView(DetailView):
+    model = Post
+    template_name = 'blog/detalle_post.html'
+    context_object_name = 'post'
 
 
-@login_required
-def crear_post(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.autor = request.user
-            post.save()
-            form.save_m2m()  # Guarda la relación ManyToMany después de save()
-            return redirect('lista_posts')
-    else:
-        form = PostForm()
-    return render(request, 'blog/crear_post.html', {'form': form})
+class CrearPostView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/crear_post.html'
+    success_url = reverse_lazy('lista_posts')
+
+    def form_valid(self, form):
+        form.instance.autor = self.request.user
+        response = super().form_valid(form)
+        form.instance.categorias.set(form.cleaned_data['categorias'])
+        return response
 
 
-@login_required
-def editar_post(request, pk):
-    post = get_object_or_404(Post, id=pk)
-    if post.autor != request.user:
-        return HttpResponse('No autorizado', status=403)
-    if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_posts')
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/editar_post.html', {'form': form})
+class EditarPostView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/editar_post.html'
+    success_url = reverse_lazy('lista_posts')
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.autor
 
 
-@login_required
-def eliminar_post(request, pk):
-    post = get_object_or_404(Post, id=pk)
-    if post.autor != request.user:
-        return HttpResponse('No autorizado', status=403)
-    if request.method == 'POST':
-        post.delete()
-        return redirect('lista_posts')
-    return render(request, 'blog/eliminar_post.html', {'post': post})
+class EliminarPostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'blog/eliminar_post.html'
+    success_url = reverse_lazy('lista_posts')
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.autor
 
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('login')
+        else:
+            # Imprime los errores con sus códigos
+            for field in form:
+                for error in field.errors:
+                    error_data = form.errors[field.name].as_data()
+                    for err in error_data:
+                        print(f"Field: {field.name}, Error: {err.message}, Code: {err.code}")
+            print(form.errors)
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
