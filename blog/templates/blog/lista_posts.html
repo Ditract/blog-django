@@ -3,16 +3,26 @@
 {% block content %}
     <h2>{{ titulo }}</h2>
 
+    <!-- Formulario de búsqueda -->
+    <form method="get" action="{% url 'lista_posts' %}">
+        {% if categoria_id %}
+            <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
+        {% endif %}
+        {{ search_form.as_p }}
+        <button type="submit">Buscar</button>
+    </form>
+
     <!-- Enlaces a categorías -->
     <p><strong>Categorías:</strong>
     {% for categoria in categorias %}
-        <a href="{% url 'posts_por_categoria' categoria.id %}">{{ categoria.nombre }}</a> |
+        <a href="{% url 'posts_por_categoria' categoria.id %}{% if query %}?q={{ query }}{% endif %}">{{ categoria.nombre }}</a> |
     {% endfor %}
-    <a href="{% url 'lista_posts' %}">Todas</a>
+    <a href="{% url 'lista_posts' %}{% if query %}?q={{ query }}{% endif %}">Todas</a>
     </p>
 
+    <!-- Lista de posts paginados -->
     <ul>
-        {% for post in posts %}
+        {% for post in page_obj %}
             <li>
                 <a href="{% url 'detalle_post' post.id %}">{{ post.titulo }}</a>
                 (por {{ post.autor.username }})
@@ -26,6 +36,20 @@
         {% endfor %}
     </ul>
 
+    <!-- Controles de paginación -->
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Primera</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Anterior</a>
+    {% endif %}
+
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Siguiente</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}">Última</a>
+    {% endif %}
+
+    <!-- Enlaces de usuario -->
     {% if user.is_authenticated %}
         <a href="{% url 'crear_post' %}">Crear nuevo post</a> |
         <form method="post" action="{% url 'logout' %}" style="display: inline;">

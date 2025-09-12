@@ -8,3 +8,6 @@ class PostForm(forms.ModelForm):
         widgets = {
             'categorias': forms.CheckboxSelectMultiple(),
         }
+
+class SearchForm(forms.Form):
+    q = forms.CharField(max_length=100, required=False, label='Buscar...')
