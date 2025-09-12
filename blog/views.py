@@ -1,9 +1,11 @@
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, Category
-from .forms import PostForm
+from .forms import PostForm, SearchForm
 
 
 def lista_posts(request, categoria_id=None):
@@ -17,10 +19,32 @@ def lista_posts(request, categoria_id=None):
     else:
         titulo = 'Todos los Posts'
 
+    query = request.GET.get('q')
+    print(f"Query recibida: '{query}'")  # Para depurar
+    if query:
+        posts = posts.filter(
+            Q(titulo__icontains=query) | Q(contenido__icontains=query)
+        )
+        print(f"Posts encontrados: {posts.count()}")  # Para depurar
+        if categoria_id:
+            titulo = f'Resultados de "{query}" en {categoria.nombre}'
+        else:
+            titulo = f'Resultados de búsqueda para "{query}"'
+
+    # Paginación
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    search_form = SearchForm(request.GET)
+
     return render(request, 'blog/lista_posts.html', {
-        'posts': posts,
+        'page_obj': page_obj,
         'categorias': categorias,
         'titulo': titulo,
+        'search_form': search_form,
+        'query': query,
+        'categoria_id': categoria_id,
     })
 
 
