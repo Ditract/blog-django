@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from imagekit.models import ImageSpecField
+from pilkit.processors import ResizeToFill
+
 
 # Create your models here.
 
@@ -16,9 +19,26 @@ class Post(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     autor = models.ForeignKey(User, on_delete=models.CASCADE)
     categorias = models.ManyToManyField(Category, related_name='posts', blank=True)
+    imagen = models.ImageField(upload_to='post/', blank=True, null=True)
+
+    #imagen optimizada para las cards
+    imagen_card = ImageSpecField(
+        source='imagen',
+        processors=[ResizeToFill(400, 250)],
+        format='JPEG',
+        options={'quality': 95}
+    )
+
+    #imagen optimizada para el detalle del post
+    imagen_detalle = ImageSpecField(
+        source='imagen',
+        processors=[ResizeToFill(800, 300)],
+        format='JPEG',
+        options={'quality': 100}
+    )
 
     class Meta:
-        ordering = ['-fecha']  # 👈 siempre ordena por fecha descendente
+        ordering = ['-fecha']  # ordena por fecha descendente
 
     def __str__(self):
         return self.titulo

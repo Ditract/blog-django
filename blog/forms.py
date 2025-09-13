@@ -7,9 +7,10 @@ from blog.models import Post
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['titulo', 'contenido', 'categorias']
+        fields = ['titulo', 'contenido', 'categorias', 'imagen']
         widgets = {
             'categorias': forms.CheckboxSelectMultiple(),
+            'imagen': forms.FileInput(),
         }
 
 class SearchForm(forms.Form):
