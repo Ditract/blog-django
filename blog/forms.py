@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from blog.models import Post, Comment
+from blog.models import Post, Comment, Profile
 
 
 class PostForm(forms.ModelForm):
@@ -51,3 +51,13 @@ class CommentForm(forms.ModelForm):
         if len(contenido) < 5:
             raise ValidationError("El comentario debe tener al menos 5 caracteres.")
         return contenido
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'avatar']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'avatar': forms.FileInput(),
+        }
