@@ -8,5 +8,6 @@ urlpatterns = [
     path('nuevo/', views.CrearPostView.as_view(), name='crear_post'),
     path('editar/<int:pk>/', views.EditarPostView.as_view(), name='editar_post'),
     path('eliminar/<int:pk>/', views.EliminarPostView.as_view(), name='eliminar_post'),
+    path('comment/<int:pk>/', views.CommentCreateView.as_view(), name='comment_create'),
     path('register/', views.register, name='register'),
 ]
