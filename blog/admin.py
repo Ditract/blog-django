@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from blog.models import Post, Category
+from blog.models import Post, Category, Comment, Profile
+
 
 # Register your models here.
 
@@ -13,3 +14,12 @@ class PostAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['nombre']
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['post', 'autor', 'fecha']
+    list_filter = ['post', 'autor', 'fecha']
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'bio']

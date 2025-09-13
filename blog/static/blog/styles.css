@@ -4,11 +4,14 @@ body {
 .navbar-brand {
     font-weight: bold;
 }
-.post-item {
-    margin-bottom: 20px;
+.card {
+    transition: transform 0.2s;
 }
-.post-item a {
-    color: #007bff;
+.card:hover {
+    transform: scale(1.02);
+}
+.card-img-top {
+    object-fit: cover;
 }
 .btn-custom {
     background-color: #007bff;

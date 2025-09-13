@@ -1,18 +1,20 @@
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db.models import Q
-from .models import Post, Category
-from .forms import PostForm, SearchForm, CustomUserCreationForm
+from .models import Post, Category, Comment, Profile
+from .forms import PostForm, SearchForm, CommentForm, ProfileForm
 
 
 class ListaPostsView(ListView):
     model = Post
     template_name = 'blog/lista_posts.html'
     context_object_name = 'page_obj'
-    paginate_by = 5  # Paginación
+    paginate_by = 5
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -34,7 +36,6 @@ class ListaPostsView(ListView):
         context['query'] = self.request.GET.get('q')
         context['categoria_id'] = self.kwargs.get('categoria_id')
 
-        # Título dinámico
         if context['query']:
             if context['categoria_id']:
                 categoria = get_object_or_404(Category, id=context['categoria_id'])
@@ -54,6 +55,11 @@ class DetallePostView(DetailView):
     model = Post
     template_name = 'blog/detalle_post.html'
     context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm()
+        return context
 
 
 class CrearPostView(LoginRequiredMixin, CreateView):
@@ -90,20 +96,79 @@ class EliminarPostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.autor
 
 
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/detalle_post.html'
+
+    def form_valid(self, form):
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        form.instance.autor = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('detalle_post', kwargs={'pk': self.kwargs['pk']})
+
+
+class ProfileView(DetailView):
+    model = User
+    template_name = 'blog/profile.html'
+    context_object_name = 'user'
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['username'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context['profile'] = self.object.profile
+        except Profile.DoesNotExist:
+            context['profile'] = None  # Maneja caso sin perfil
+        context['posts'] = Post.objects.filter(autor=self.object).order_by('-fecha')
+        return context
+
+
+class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'blog/profile_edit.html'
+    success_url = reverse_lazy('lista_posts')
+
+    def get_object(self):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
+
+
+class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].error_messages = {
+            'password_too_short': 'La contraseña es demasiado corta. Debe contener al menos 8 caracteres.',
+            'password_too_common': 'La contraseña es demasiado común.',
+            'password_entirely_numeric': 'La contraseña no puede ser completamente numérica.',
+        }
+        self.fields['password2'].error_messages = {
+            'password_mismatch': 'Las contraseñas no coinciden.',
+        }
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if len(username) < 4:
+            raise ValidationError("El nombre de usuario debe tener al menos 4 caracteres.")
+        if ' ' in username:
+            raise ValidationError("El nombre de usuario no puede contener espacios.")
+        return username
+
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            Profile.objects.get_or_create(user=user)  # Crear perfil si no existe
             return redirect('login')
-        else:
-            # Imprime los errores con sus códigos
-            for field in form:
-                for error in field.errors:
-                    error_data = form.errors[field.name].as_data()
-                    for err in error_data:
-                        print(f"Field: {field.name}, Error: {err.message}, Code: {err.code}")
-            print(form.errors)
     else:
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
