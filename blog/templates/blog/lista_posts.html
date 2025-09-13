@@ -4,7 +4,6 @@
     <div class="container mt-4">
         <h2>{{ titulo }}</h2>
 
-        <!-- Formulario de búsqueda -->
         <form method="get" action="{% url 'lista_posts' %}" class="mb-4">
             {% if categoria_id %}
                 <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
@@ -15,7 +14,6 @@
             </div>
         </form>
 
-        <!-- Enlaces a categorías -->
         <div class="mb-4">
             <strong>Categorías:</strong>
             {% for categoria in categorias %}
@@ -24,7 +22,6 @@
             <a href="{% url 'lista_posts' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-outline-primary btn-sm">Todas</a>
         </div>
 
-        <!-- Lista de posts como cards -->
         <div class="row">
             {% for post in page_obj %}
                 <div class="col-md-4 mb-4">
@@ -37,7 +34,7 @@
                         <div class="card-body">
                             <h5 class="card-title"><a href="{% url 'detalle_post' post.id %}">{{ post.titulo }}</a></h5>
                             <p class="card-text">{{ post.contenido|truncatewords:20 }}</p>
-                            <p class="text-muted">Por {{ post.autor.username }} | {{ post.fecha|date:"d M Y" }}</p>
+                            <p class="text-muted">Por <a href="{% url 'profile' post.autor.username %}">{{ post.autor.username }}</a> | {{ post.fecha|date:"d M Y" }}</p>
                             {% if user.is_authenticated and user == post.autor %}
                                 <a href="{% url 'editar_post' post.id %}" class="btn btn-primary btn-sm">Editar</a>
                                 <a href="{% url 'eliminar_post' post.id %}" class="btn btn-danger btn-sm">Eliminar</a>
@@ -50,7 +47,6 @@
             {% endfor %}
         </div>
 
-        <!-- Paginación -->
         {% if page_obj.has_previous or page_obj.has_next %}
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination">
