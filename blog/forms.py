@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from blog.models import Post
+from blog.models import Post, Comment
+
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -34,3 +36,18 @@ class CustomUserCreationForm(UserCreationForm):
             'password_too_common': _('Esta contraseña es demasiado común.'),
             'password_entirely_numeric': _('Esta contraseña no puede ser completamente numérica.'),
         })
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['contenido']
+        widgets = {
+            'contenido': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+        }
+
+    def clean_contenido(self):
+        contenido = self.cleaned_data['contenido']
+        if len(contenido) < 5:
+            raise ValidationError("El comentario debe tener al menos 5 caracteres.")
+        return contenido

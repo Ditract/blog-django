@@ -18,8 +18,8 @@
                         Sin categorías
                     {% endfor %}
                 </p>
-                <p class="text-muted">Fecha: {{ post.fecha|date:"d M Y" }} | Autor: {{ post.autor.username }}</p>
                 <p class="card-text">{{ post.contenido|linebreaks }}</p>
+                <p class="text-muted">Fecha: {{ post.fecha|date:"d M Y" }} | Autor: {{ post.autor.username }}</p>
                 <div class="mt-3">
                     <a href="{% url 'lista_posts' %}" class="btn btn-secondary">Volver a la lista</a>
                     {% if user.is_authenticated and user == post.autor %}
@@ -28,6 +28,38 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+
+        <!-- Sección de comentarios -->
+        <div class="mt-4">
+            <h3>Comentarios</h3>
+            {% for comment in post.comments.all %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <p class="card-text">{{ comment.contenido|linebreaks }}</p>
+                        <p class="text-muted">Por {{ comment.autor.username }} | {{ comment.fecha|date:"d M Y H:i" }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No hay comentarios aún.</p>
+            {% endfor %}
+
+            <!-- Formulario de comentario -->
+            {% if user.is_authenticated %}
+                <h4>Agregar comentario</h4>
+                <form method="post" action="{% url 'comment_create' post.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ comment_form.contenido }}
+                        {% if comment_form.contenido.errors %}
+                            <div class="text-danger">{{ comment_form.contenido.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-custom">Comentar</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}">Inicia sesión</a> para comentar.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
