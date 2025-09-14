@@ -1,29 +1,70 @@
+# -----------------------------
 # Entorno virtual
+# -----------------------------
 venv/
 env/
 .env
 
+# -----------------------------
 # Archivos de Python
+# -----------------------------
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
+# -----------------------------
 # Archivos de Django
+# -----------------------------
 *.sqlite3
+*.sqlite3-journal
 *.log
-migrations/
 
+# Ignorar __pycache__ dentro de migrations pero mantener los archivos de migración
+**/migrations/__pycache__/
+**/migrations/*.py[cod]
+
+# -----------------------------
 # Archivos de configuración sensibles
+# -----------------------------
 *.env
 .env.*
 secrets.json
 
+# -----------------------------
 # Archivos estáticos y de medios (si los generas localmente)
+# -----------------------------
 staticfiles/
 media/
 
-# Otros
-.DS_Store  # Para macOS
+# -----------------------------
+# IDEs / Editores
+# -----------------------------
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------------
+# Testing / coverage
+# -----------------------------
+.coverage
+htmlcov/
+pytest_cache/
+nosetests.xml
+
+# -----------------------------
+# Empaquetado / distribución
+# -----------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# -----------------------------
+# Archivos del sistema
+# -----------------------------
+.DS_Store   # macOS
+Thumbs.db   # Windows
 *.swp
 *.swo
