@@ -10,6 +10,25 @@ from .models import Post, Category, Comment, Profile
 from .forms import PostForm, SearchForm, CommentForm, ProfileForm
 
 
+class HomeView(ListView):
+    model = Post
+    template_name = 'blog/home.html'
+    context_object_name = 'posts'
+    paginate_by = 6  # Mostrar 6 posts
+
+    def get_queryset(self):
+        return Post.objects.all().order_by('-fecha')[:6]  # Últimos 6 posts
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Bienvenido a Mi Blog'
+        if self.request.user.is_authenticated:
+            context['bienvenida'] = f'¡Hola, {self.request.user.username}!'
+        else:
+            context['bienvenida'] = '¡Explora los últimos posts!'
+        return context
+
+
 class ListaPostsView(ListView):
     model = Post
     template_name = 'blog/lista_posts.html'
@@ -123,7 +142,7 @@ class ProfileView(DetailView):
         try:
             context['profile'] = self.object.profile
         except Profile.DoesNotExist:
-            context['profile'] = None  # Maneja caso sin perfil
+            context['profile'] = None
         context['posts'] = Post.objects.filter(autor=self.object).order_by('-fecha')
         return context
 
@@ -167,7 +186,7 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.get_or_create(user=user)  # Crear perfil si no existe
+            Profile.objects.get_or_create(user=user)
             return redirect('login')
     else:
         form = CustomUserCreationForm()
