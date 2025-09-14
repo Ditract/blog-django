@@ -1,29 +1,48 @@
 {% extends 'blog/base.html' %}
 {% block title %}Editar Perfil{% endblock %}
 {% block content %}
-    <div class="container mt-4">
-        <h2>Editar Perfil</h2>
-        <form method="post" class="mt-4" enctype="multipart/form-data">
+
+<section class="edit-profile my-5">
+    <div class="card shadow-sm border-0 p-4 mx-auto" style="max-width: 600px;">
+        <h2 class="fw-bold mb-4 text-center">Editar Perfil</h2>
+
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
+
+            <!-- Biografía -->
             <div class="mb-3">
-                <label for="{{ form.bio.id_for_label }}" class="form-label">Biografía</label>
+                <label for="{{ form.bio.id_for_label }}" class="form-label fw-semibold">Biografía</label>
                 {{ form.bio }}
                 {% if form.bio.errors %}
-                    <div class="text-danger">{{ form.bio.errors }}</div>
+                    <div class="text-danger small">{{ form.bio.errors }}</div>
                 {% endif %}
             </div>
+
+            <!-- Avatar -->
             <div class="mb-3">
-                <label for="{{ form.avatar.id_for_label }}" class="form-label">Avatar</label>
-                <input type="file" name="{{ form.avatar.name }}" id="{{ form.avatar.id_for_label }}" class="form-control" accept="image/*">
+                <label for="{{ form.avatar.id_for_label }}" class="form-label fw-semibold">Avatar</label>
+                <input type="file" name="{{ form.avatar.name }}" id="{{ form.avatar.id_for_label }}"
+                       class="form-control" accept="image/*">
                 {% if form.avatar.value %}
-                    <p>Avatar actual: <img src="{{ form.avatar.value.url }}" alt="Avatar actual" style="max-width: 100px; margin-top: 10px;"></p>
+                    <p class="mt-2">Avatar actual:
+                        <img src="{{ form.avatar.value.url }}" alt="Avatar actual"
+                             class="rounded-circle border profile-edit-avatar">
+                    </p>
                 {% endif %}
                 {% if form.avatar.errors %}
-                    <div class="text-danger">{{ form.avatar.errors }}</div>
+                    <div class="text-danger small">{{ form.avatar.errors }}</div>
                 {% endif %}
             </div>
-            <button type="submit" class="btn btn-custom">Guardar Cambios</button>
-            <a href="{% url 'profile' user.username %}" class="btn btn-secondary">Cancelar</a>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'profile' user.username %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-custom rounded-pill px-4">Guardar Cambios</button>
+            </div>
         </form>
     </div>
+</section>
+
 {% endblock %}
