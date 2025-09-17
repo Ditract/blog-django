@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 from cloudinary.models import CloudinaryField
-from imagekit.models import ImageSpecField
-from pilkit.processors import ResizeToFill
 
 # Create your models here.
 
@@ -21,22 +19,6 @@ class Post(models.Model):
     categorias = models.ManyToManyField(Category, related_name='posts', blank=True)
     imagen = CloudinaryField('image', blank=True, null=True)
 
-    # Imagen optimizada para las cards
-    imagen_card = ImageSpecField(
-        source='imagen',
-        processors=[ResizeToFill(400, 250)],
-        format='JPEG',
-        options={'quality': 95}
-    )
-
-    # Imagen optimizada para el detalle del post
-    imagen_detalle = ImageSpecField(
-        source='imagen',
-        processors=[ResizeToFill(800, 300)],
-        format='JPEG',
-        options={'quality': 100}
-    )
-
     class Meta:
         ordering = ['-fecha']  # ordena por fecha descendente
 
@@ -52,10 +34,17 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comentario de {self.autor.username} en {self.post.titulo}'
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
-    avatar = CloudinaryField('avatar', blank=True, null=True, default='avatars/default.png')
+    avatar = CloudinaryField('avatar', blank=True, null=True)
 
     def __str__(self):
         return f'Perfil de {self.user.username}'
+
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        else:
+            return "https://res.cloudinary.com/dt8cem7zx/image/upload/v1758148462/default_lb86o0.png"

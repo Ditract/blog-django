@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'temporal-fallback')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 CSRF_TRUSTED_ORIGINS = [
     'https://' + host if not host.startswith(('http://', 'https://')) else host
     for host in os.environ.get('CSRF_TRUSTED_ORIGINS', 'localhost,127.0.0.1').split(',')
@@ -43,13 +43,13 @@ CSRF_COOKIE_SECURE = True
 INSTALLED_APPS = [
     'blog',
     'cloudinary_storage',
+    'cloudinary',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'imagekit',
 
 ]
 
