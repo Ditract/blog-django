@@ -34,7 +34,7 @@ secrets.json
 # -----------------------------
 # Archivos estáticos y de medios (si los generas localmente)
 # -----------------------------
-staticfiles/
+#staticfiles/
 media/
 
 # -----------------------------
