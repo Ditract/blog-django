@@ -8,6 +8,9 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from .models import Post, Category, Comment, Profile
 from .forms import PostForm, SearchForm, CommentForm, ProfileForm
+from django.urls import reverse
+from django.contrib import messages
+
 
 
 class HomeView(ListView):
@@ -32,8 +35,8 @@ class HomeView(ListView):
 class ListaPostsView(ListView):
     model = Post
     template_name = 'blog/lista_posts.html'
-    context_object_name = 'page_obj'
-    paginate_by = 5
+    context_object_name = 'posts'
+    paginate_by = 6
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -42,7 +45,6 @@ class ListaPostsView(ListView):
 
         if query:
             queryset = queryset.filter(Q(titulo__icontains=query) | Q(contenido__icontains=query))
-
         if categoria_id:
             queryset = queryset.filter(categorias__id=categoria_id)
 
@@ -57,12 +59,12 @@ class ListaPostsView(ListView):
 
         if context['query']:
             if context['categoria_id']:
-                categoria = get_object_or_404(Category, id=context['categoria_id'])
+                categoria = Category.objects.get(id=context['categoria_id'])
                 context['titulo'] = f'Resultados de "{context["query"]}" en {categoria.nombre}'
             else:
                 context['titulo'] = f'Resultados de búsqueda para "{context["query"]}"'
         elif context['categoria_id']:
-            categoria = get_object_or_404(Category, id=context['categoria_id'])
+            categoria = Category.objects.get(id=context['categoria_id'])
             context['titulo'] = f'Posts en {categoria.nombre}'
         else:
             context['titulo'] = 'Todos los Posts'
@@ -78,6 +80,11 @@ class DetallePostView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
+        referer = self.request.META.get('HTTP_REFERER', '')
+        if '/perfil/' in referer:
+            context['back_url'] = reverse('profile', kwargs={'username': self.request.user.username})
+        else:
+            context['back_url'] = reverse('lista_posts')
         return context
 
 
@@ -94,15 +101,23 @@ class CrearPostView(LoginRequiredMixin, CreateView):
         return response
 
 
+
 class EditarPostView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/editar_post.html'
-    success_url = reverse_lazy('lista_posts')
 
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.autor
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, '¡El post se ha actualizado correctamente!')
+        return response
+
+    def get_success_url(self):
+        return reverse('detalle_post', kwargs={'pk': self.object.pk})
 
 
 class EliminarPostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -132,7 +147,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class ProfileView(DetailView):
     model = User
     template_name = 'blog/profile.html'
-    context_object_name = 'user'
+    context_object_name = 'profile_user'
 
     def get_object(self):
         return get_object_or_404(User, username=self.kwargs['username'])

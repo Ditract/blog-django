@@ -1,67 +1,57 @@
 {% extends 'blog/base.html' %}
 {% block title %}Editar Post{% endblock %}
 {% block content %}
-<section class="edit-post my-5">
-    <div class="card shadow-sm border-0 p-4">
-        <h2 class="fw-bold mb-4">✏️ Editar Post</h2>
+<section class="form-container py-5">
+    <div class="form-card mx-auto">
+        <h2 class="form-title text-center">✏️ Editar Post</h2>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label for="{{ form.titulo.id_for_label }}" class="form-label">Título</label>
-                <input type="text"
-                       name="{{ form.titulo.name }}"
-                       id="{{ form.titulo.id_for_label }}"
-                       class="form-control rounded-pill px-3"
-                       value="{{ form.titulo.value|default:'' }}">
+                <input type="text" name="{{ form.titulo.name }}" id="{{ form.titulo.id_for_label }}" class="form-control" value="{{ form.titulo.value|default:'' }}" required>
                 {% if form.titulo.errors %}
-                    <div class="invalid-feedback d-block">{{ form.titulo.errors }}</div>
+                    <div class="form-error">{{ form.titulo.errors }}</div>
                 {% endif %}
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label for="{{ form.contenido.id_for_label }}" class="form-label">Contenido</label>
-                <textarea name="{{ form.contenido.name }}"
-                          id="{{ form.contenido.id_for_label }}"
-                          class="form-control rounded-3"
-                          rows="6">{{ form.contenido.value|default:'' }}</textarea>
+                <textarea name="{{ form.contenido.name }}" id="{{ form.contenido.id_for_label }}" class="form-control" rows="10" required>{{ form.contenido.value|default:'' }}</textarea>
                 {% if form.contenido.errors %}
-                    <div class="invalid-feedback d-block">{{ form.contenido.errors }}</div>
+                    <div class="form-error">{{ form.contenido.errors }}</div>
                 {% endif %}
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label for="{{ form.imagen.id_for_label }}" class="form-label">Imagen</label>
-                <input type="file"
-                       name="{{ form.imagen.name }}"
-                       id="{{ form.imagen.id_for_label }}"
-                       class="form-control"
-                       accept="image/*">
-
+                <input type="file" name="{{ form.imagen.name }}" id="{{ form.imagen.id_for_label }}" class="form-control" accept="image/*">
                 {% if form.imagen.value %}
-                    <p class="mt-2">Imagen actual:</p>
-                    <img src="{{ form.imagen.value.url }}" alt="Imagen actual" class="img-thumbnail rounded shadow-sm" style="max-width: 250px;">
+                    <p class="current-image-text mt-2">Imagen actual:</p>
+                    <img src="{{ form.imagen.value.url }}" alt="Imagen actual" class="post-detail-img">
                 {% endif %}
-
                 {% if form.imagen.errors %}
-                    <div class="invalid-feedback d-block">{{ form.imagen.errors }}</div>
+                    <div class="form-error">{{ form.imagen.errors }}</div>
                 {% endif %}
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label class="form-label">Categorías</label>
-                <div class="form-control p-2">
-                    {{ form.categorias }}
+                <div class="categories-list">
+                    {% for value, label in form.categorias.field.choices %}
+                        <input type="checkbox" name="{{ form.categorias.name }}" id="category-{{ value }}" value="{{ value }}" {% if value in form.categorias.value %}checked{% endif %}>
+                        <label for="category-{{ value }}">{{ label }}</label>
+                    {% endfor %}
                 </div>
                 {% if form.categorias.errors %}
-                    <div class="invalid-feedback d-block">{{ form.categorias.errors }}</div>
+                    <div class="form-error">{{ form.categorias.errors }}</div>
                 {% endif %}
             </div>
 
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-custom rounded-pill px-4">💾 Guardar Cambios</button>
-                <a href="{% url 'lista_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+            <div class="d-flex justify-content-between mt-5 gap-3">
+                <a href="{% url 'detalle_post' post.id %}" class="btn btn-outline-secondary flex-grow-1">Cancelar</a>
+                <button type="submit" class="btn btn-primary flex-grow-1">Guardar Cambios</button>
             </div>
         </form>
     </div>

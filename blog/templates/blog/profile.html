@@ -1,58 +1,46 @@
 {% extends 'blog/base.html' %}
-{% block title %}Perfil de {{ user.username }}{% endblock %}
+{% block title %}Perfil de {{ profile_user.username }}{% endblock %}
 {% block content %}
-
-<!-- Perfil -->
-<section class="profile text-center my-5">
-    <div class="card shadow-sm border-0 p-4">
-        <div class="d-flex flex-column align-items-center">
-            {% if profile and profile.avatar %}
-                <img src="{{ profile.avatar.url }}" alt="Avatar de {{ user.username }}"
-                     class="rounded-circle mb-3 profile-avatar">
-            {% else %}
-                <img src="https://via.placeholder.com/150" alt="Avatar por defecto"
-                     class="rounded-circle mb-3 profile-avatar">
-            {% endif %}
-
-            <h2 class="fw-bold">{{ user.username }}</h2>
-            <p class="text-muted">{{ profile.bio|default:"Sin biografía" }}</p>
-
-            {% if user == request.user %}
-                <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary rounded-pill px-4 mt-2">
-                    Editar Perfil
-                </a>
-            {% endif %}
-        </div>
+<section class="user-profile py-5">
+    <div class="profile-card mx-auto text-center">
+        {% if profile and profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="Avatar de {{ profile_user.username }}" class="profile-avatar mb-3">
+        {% else %}
+            <img src="https://via.placeholder.com/150?text=Avatar" alt="Avatar por defecto" class="profile-avatar mb-3">
+        {% endif %}
+        <h2 class="profile-username mb-1">{{ profile_user.username }}</h2>
+        <p class="profile-bio text-muted">{{ profile.bio|default:"Sin biografía" }}</p>
+        {% if profile_user == request.user %}
+            <a href="{% url 'profile_edit' %}" class="btn btn-primary mt-3">
+                Editar Perfil
+            </a>
+        {% endif %}
     </div>
 </section>
 
-<!-- Posts -->
 <section class="user-posts mt-5">
-    <h3 class="fw-bold mb-4 text-center">Posts de {{ user.username }}</h3>
+    <h3 class="section-title text-center mb-4">Posts de {{ profile_user.username }}</h3>
     <div class="row g-4">
         {% for post in posts %}
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
                     {% if post.imagen %}
-                        <img src="{{ post.imagen.url }}" class="card-img-top" alt="{{ post.titulo }}"
-                             style="height: 200px; object-fit: cover;">
+                        <img src="{{ post.imagen.url }}" class="card-img-top" alt="{{ post.titulo }}">
                     {% else %}
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Placeholder">
+                        <img src="https://via.placeholder.com/300x200?text=Imagen+No+Disponible" class="card-img-top" alt="Placeholder">
                     {% endif %}
-                    <div class="card-body">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">
-                            <a href="{% url 'detalle_post' post.id %}"
-                               class="stretched-link text-decoration-none">{{ post.titulo }}</a>
+                            <a href="{% url 'detalle_post' post.id %}" class="stretched-link text-decoration-none text-dark">{{ post.titulo }}</a>
                         </h5>
-                        <p class="card-text small text-muted">{{ post.contenido|truncatewords:20 }}</p>
-                        <p class="text-muted small">Publicado el {{ post.fecha|date:"d M Y" }}</p>
+                        <p class="card-text text-muted small flex-grow-1">{{ post.contenido|truncatewords:20 }}</p>
+                        <p class="text-muted small mt-2">Publicado el {{ post.fecha|date:"d M Y" }}</p>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p class="text-center text-muted">No hay posts disponibles.</p>
+            <p class="text-center text-muted w-100">No hay posts disponibles.</p>
         {% endfor %}
     </div>
 </section>
-
 {% endblock %}

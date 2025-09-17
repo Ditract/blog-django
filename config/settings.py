@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-d$@h6iml_x#z53f+-kp+4n7#f387bl6hq1sv(^b=qkly@qpwx(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.ngrok-free.app'] # Solo para pruebas
+CSRF_TRUSTED_ORIGINS = ['https://12b90b063336.ngrok-free.app'] # Solo para prueba
+SESSION_COOKIE_SECURE = False  # Solo para desarrollo HTTP/HTTPS mixto
+CSRF_COOKIE_SECURE = False     # Solo para desarrollo
 
 
 # Application definition
@@ -131,5 +134,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-LOGIN_REDIRECT_URL = '/blog/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
