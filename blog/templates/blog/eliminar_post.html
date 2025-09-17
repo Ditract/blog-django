@@ -1,19 +1,24 @@
 {% extends 'blog/base.html' %}
 {% block title %}Eliminar Post{% endblock %}
 {% block content %}
-<section class="delete-post my-5">
-    <div class="card shadow-sm border-0 p-4 text-center">
-        <h2 class="fw-bold text-danger mb-3">⚠️ Eliminar Post</h2>
-        <p class="mb-4">
+<section class="delete-post py-5">
+    <div class="card form-card text-center mx-auto">
+        <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 3rem;"></i>
+        <h2 class="form-title text-danger mb-3">⚠️ Eliminar Post</h2>
+        <p class="form-subtitle mb-4">
             ¿Estás seguro de que quieres eliminar <strong>"{{ post.titulo }}"</strong>?
-            Esta acción no se puede deshacer.
+            Esta acción es irreversible.
         </p>
 
         <form method="post">
             {% csrf_token %}
             <div class="d-flex justify-content-center gap-3">
-                <button type="submit" class="btn btn-danger rounded-pill px-4">Sí, eliminar</button>
-                <a href="{% url 'lista_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                <button type="submit" class="btn btn-danger flex-grow-1">
+                    Sí, eliminar <i class="fas fa-trash-alt ms-2"></i>
+                </button>
+                <a href="{% url 'lista_posts' %}" class="btn btn-outline-secondary flex-grow-1">
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>

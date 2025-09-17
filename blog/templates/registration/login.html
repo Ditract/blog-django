@@ -1,52 +1,42 @@
 {% extends 'blog/base.html' %}
 {% block title %}Iniciar Sesión{% endblock %}
 {% block content %}
-
-<section class="login-page my-5">
-    <div class="card shadow-sm border-0 p-4 mx-auto" style="max-width: 450px;">
-        <h2 class="fw-bold mb-4 text-center">Iniciar Sesión</h2>
+<section class="form-container py-5">
+    <div class="form-card mx-auto">
+        <h2 class="form-title text-center">🔐 Iniciar Sesión</h2>
+        <p class="form-subtitle text-center">Ingresa tus credenciales para continuar.</p>
 
         <form method="post">
             {% csrf_token %}
-
-            <!-- Errores generales -->
             {% if form.non_field_errors %}
-                <div class="alert alert-danger">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
                     {% for error in form.non_field_errors %}
                         <p class="mb-0">{{ error }}</p>
                     {% endfor %}
                 </div>
             {% endif %}
-
-            <!-- Usuario -->
-            <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">Nombre de usuario</label>
-                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
-                       class="form-control" value="{{ form.username.value|default:'' }}" required>
+            <div class="mb-4">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
+                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" value="{{ form.username.value|default:'' }}" required>
                 {% if form.username.errors %}
-                    <div class="text-danger small">{{ form.username.errors }}</div>
+                    <div class="form-error">{{ form.username.errors }}</div>
                 {% endif %}
             </div>
-
-            <!-- Contraseña -->
-            <div class="mb-3">
-                <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">Contraseña</label>
-                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"
-                       class="form-control" required>
+            <div class="mb-4">
+                <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control" required>
                 {% if form.password.errors %}
-                    <div class="text-danger small">{{ form.password.errors }}</div>
+                    <div class="form-error">{{ form.password.errors }}</div>
                 {% endif %}
             </div>
-
-            <!-- Botones -->
             <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-custom rounded-pill">Iniciar Sesión</button>
-                <a href="{% url 'register' %}" class="btn btn-outline-secondary rounded-pill">
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                <a href="{% url 'register' %}" class="btn btn-outline-secondary">
                     ¿No tienes cuenta? Regístrate
                 </a>
             </div>
         </form>
     </div>
 </section>
-
 {% endblock %}
