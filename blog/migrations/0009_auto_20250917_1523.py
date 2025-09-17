@@ -16,7 +16,7 @@ def delete_superuser(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('blog', '0001_initial'),  # Cambia '0001_initial' por el nombre de tu última migración en blog
+        ('blog', '0008_alter_profile_avatar'),  # Última migración
     ]
 
     operations = [
