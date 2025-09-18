@@ -3,13 +3,6 @@
 {% block content %}
 <section class="user-profile py-5">
     <div class="profile-card mx-auto text-center">
-        <!-- AGREGAR ESTAS LÍNEAS DE DEBUG -->
-        <p><strong>Debug:</strong></p>
-        <p>Profile existe: {{ profile|yesno:"Sí,No" }}</p>
-        <p>Avatar URL: "{{ profile.get_avatar_url }}"</p>
-        <p>¿Tiene avatar? {{ profile.avatar|yesno:"Sí,No" }}</p>
-        <hr>
-
         <img src="{{ profile.get_avatar_url }}" alt="Avatar de {{ profile_user.username }}" class="profile-avatar mb-3">
         <h2 class="profile-username mb-1">{{ profile_user.username }}</h2>
         <p class="profile-bio text-muted">{{ profile.bio|default:"Sin biografía" }}</p>
