@@ -3,10 +3,11 @@
 {% block content %}
 <section class="post-detail-page py-5">
     <article class="post-detail-card mx-auto">
+        {% load cloudinary %}
         {% if post.imagen %}
-            <img src="{{ post.imagen.url }}" class="post-detail-img" alt="{{ post.titulo }}">
+            {% cloudinary post.imagen width=800 height=300 crop="scale" quality="auto:best" alt=post.titulo %}
         {% else %}
-            <img src="https://via.placeholder.com/800x400?text=Imagen+No+Disponible" class="post-detail-img" alt="Placeholder">
+            <img src="https://via.placeholder.com/600x400?text=Imagen+No+Disponible" alt="Placeholder">
         {% endif %}
         <div class="post-content p-4">
             <h1 class="post-title">{{ post.titulo }}</h1>

@@ -1,35 +1,43 @@
 {% extends 'blog/base.html' %}
-{% block title %}Editar Perfil{% endblock %}
+{% block title %}Perfil de {{ profile_user.username }}{% endblock %}
 {% block content %}
-<section class="form-container py-5">
-    <div class="form-card mx-auto">
-        <h2 class="form-title text-center">✏️ Editar Perfil</h2>
+<section class="user-profile py-5">
+    <div class="profile-card mx-auto text-center">
+        <img src="{{ profile.get_avatar_url }}" alt="Avatar de {{ profile_user.username }}" class="profile-avatar mb-3">
+        <h2 class="profile-username mb-1">{{ profile_user.username }}</h2>
+        <p class="profile-bio text-muted">{{ profile.bio|default:"Sin biografía" }}</p>
+        {% if profile_user == request.user %}
+            <a href="{% url 'profile_edit' %}" class="btn btn-primary mt-3">
+                Editar Perfil
+            </a>
+        {% endif %}
+    </div>
+</section>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-4">
-                <label for="{{ form.bio.id_for_label }}" class="form-label">Biografía</label>
-                <textarea name="{{ form.bio.name }}" id="{{ form.bio.id_for_label }}" class="form-control" rows="4">{{ form.bio.value|default:'' }}</textarea>
-                {% if form.bio.errors %}
-                    <div class="form-error">{{ form.bio.errors }}</div>
-                {% endif %}
+<section class="user-posts mt-5">
+    <h3 class="section-title text-center mb-4">Posts de {{ profile_user.username }}</h3>
+    <div class="row g-4">
+        {% for post in posts %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    {% load cloudinary %}
+                    {% if post.imagen %}
+                        {% cloudinary post.imagen width=400 height=250 crop="scale" quality="auto:best" class="card-img-top" alt=post.titulo %}
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=Imagen+No+Disponible" class="card-img-top" alt="Placeholder">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">
+                            <a href="{% url 'detalle_post' post.id %}" class="stretched-link text-decoration-none text-dark">{{ post.titulo }}</a>
+                        </h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ post.contenido|truncatewords:20 }}</p>
+                        <p class="text-muted small mt-2">Publicado el {{ post.fecha|date:"d M Y" }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="mb-4">
-                <label for="{{ form.avatar.id_for_label }}" class="form-label">Avatar</label>
-                <input type="file" name="{{ form.avatar.name }}" id="{{ form.avatar.id_for_label }}" class="form-control" accept="image/*">
-                {% if form.avatar.value %}
-                    <p class="current-image-text mt-2">Avatar actual:</p>
-                    <img src="{{ form.avatar.value.url }}" alt="Avatar actual" class="profile-avatar-preview">
-                {% endif %}
-                {% if form.avatar.errors %}
-                    <div class="form-error">{{ form.avatar.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="d-flex justify-content-between mt-5 gap-3">
-                <a href="{% url 'profile' user.username %}" class="btn btn-outline-secondary flex-grow-1">Cancelar</a>
-                <button type="submit" class="btn btn-primary flex-grow-1">Guardar Cambios</button>
-            </div>
-        </form>
+        {% empty %}
+            <p class="text-center text-muted w-100">No hay posts disponibles.</p>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
